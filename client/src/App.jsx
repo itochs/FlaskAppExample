@@ -1,7 +1,33 @@
 import { useEffect, useRef, useState } from "react";
+import { singIn, auth } from "./api/auth/firebase";
+
+async function getMemos(callback) {
+  if (!auth.currentUser) {
+    const res = await fetch("/api/memos");
+    if (res.ok) {
+      const data = await res?.json().catch(() => []);
+      callback(data ?? []);
+    }
+    return;
+  }
+
+  const idToken = await auth.currentUser?.getIdToken();
+  const userId = auth.currentUser?.uid;
+  const res = await fetch(`/api/users/${userId}/memos`, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${idToken}`,
+    },
+  });
+  if (res.ok) {
+    const data = await res?.json().catch(() => []);
+    callback(data ?? []);
+  }
+}
 
 function App() {
   const [memos, setMemos] = useState([]);
+  const [user, setUser] = useState(null);
   const postMemoRef = useRef();
   const style_spacer = {
     borderBottomStyle: "solid",
@@ -28,10 +54,12 @@ function App() {
       .filter((line) => line !== "");
 
     (async () => {
+      const idToken = await auth.currentUser?.getIdToken();
       const res = await fetch("/api/memos", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${idToken}`,
         },
         body: JSON.stringify({ memo: parsed_memo_content }),
       });
@@ -42,17 +70,44 @@ function App() {
   }
 
   useEffect(() => {
-    fetch("/api/memos")
-      .then((res) => res.json())
-      .then((data) => {
-        setMemos(data);
-      });
+    getMemos(setMemos);
+  }, [user]);
+
+  useEffect(() => {
+    getMemos(setMemos);
+
+    const unsubscribe = auth.onAuthStateChanged((user) => {
+      if (!user) {
+        setUser(user);
+      }
+    });
+
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   return (
     <>
-      <header>
+      <header
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
         <h1>Y</h1>
+        <button
+          onClick={() => {
+            if (auth.currentUser) {
+              auth.signOut();
+            } else {
+              singIn();
+            }
+          }}
+        >
+          {user ? "sign out" : "sign in"}
+        </button>
       </header>
       <form
         onSubmit={(e) => onMemoSubmit(e)}
