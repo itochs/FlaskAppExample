@@ -1,9 +1,12 @@
+from firebase_admin import initialize_app
 from flask import Flask, jsonify, request
 from memos.get_memo import get_all_memos as get_all_memos_from_db
 from memos.get_memo import get_memo as get_memo_from_db
 from memos.save_memo import save_memo
+from util.verify import require_auth
 
 app = Flask(__name__)
+firebase_app = initialize_app()
 
 
 @app.route("/memos", methods=["POST"])
