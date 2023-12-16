@@ -34,3 +34,14 @@ def get_memo(id: str):
         return {"message": "memo not found"}, 404
 
     return jsonify(memo)
+
+
+@app.route("/users/<user_id>/memos", methods=["GET"])
+@require_auth
+def get_user_memos(uid, user_id: str):
+    if uid != user_id:
+        return {"message": "Unauthorized"}, 401
+
+    memos = get_all_memos_from_db(uid)
+
+    return jsonify(memos)
