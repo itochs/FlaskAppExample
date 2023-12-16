@@ -1,5 +1,18 @@
 import { useEffect, useRef, useState } from "react";
 import { singIn, auth } from "./api/auth/firebase";
+import {
+  Box,
+  Button,
+  Card,
+  CardBody,
+  FormControl,
+  FormHelperText,
+  FormLabel,
+  Heading,
+  Stack,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 
 async function getMemos(callback) {
   if (!auth.currentUser) {
@@ -29,12 +42,7 @@ function App() {
   const [memos, setMemos] = useState([]);
   const [user, setUser] = useState(null);
   const postMemoRef = useRef();
-  const style_spacer = {
-    borderBottomStyle: "solid",
-    borderBottomWidth: "1",
-    borderColor: "none",
-    borderBottomColor: "black",
-  };
+
   const style_block = { display: "block" };
 
   function onMemoSubmit(e) {
@@ -87,65 +95,84 @@ function App() {
   }, []);
 
   return (
-    <>
-      <header
-        style={{
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
+    <Box bgColor={"gray.100"} minHeight={"100vh"}>
+      <Heading
+        as={"header"}
+        display={"flex"}
+        justifyContent={"space-between"}
+        alignContent={"center"}
+        bgColor={"gray.500"}
       >
-        <h1>Y memo</h1>
-        <button
-          onClick={() => {
-            if (auth.currentUser) {
-              auth.signOut();
-            } else {
-              singIn();
-            }
-          }}
+        <Heading
+          as={"h1"}
+          textAlign={"center"}
+          alignSelf={"center"}
+          paddingLeft={3}
         >
-          {user ? "sign out" : "sign in"}
-        </button>
-      </header>
-      <form
-        onSubmit={(e) => onMemoSubmit(e)}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" && e.ctrlKey) {
-            onMemoSubmit(e);
-          }
-        }}
-      >
-        <button style={style_block}>メモする</button>
-        <label style={style_block} htmlFor="memo_content">
-          メモの内容
-        </label>
-        <textarea
-          style={{ ...style_block, width: "20em", height: "10em" }}
-          id="memo_content"
-          name="memo_content"
-          ref={postMemoRef}
-        />
-      </form>
-      <article>
-        <h2>メモ一覧</h2>
-        {memos.map(({ memo }, index) => {
-          return (
-            <article key={index}>
-              <p>
-                {memo.map((line) => (
-                  <span key={line}>
-                    {line}
-                    <br />
-                  </span>
-                ))}
-              </p>
-              <div style={style_spacer} />
-            </article>
-          );
-        })}
-      </article>
-    </>
+          Y memo
+        </Heading>
+        <Box padding={2}>
+          <Button
+            onClick={() => {
+              if (auth.currentUser) {
+                auth.signOut();
+              } else {
+                singIn();
+              }
+            }}
+          >
+            {user ? "sign out" : "sign in"}
+          </Button>
+        </Box>
+      </Heading>
+      <Box padding={3}>
+        <Box padding={1}>
+          <form
+            onSubmit={(e) => onMemoSubmit(e)}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && e.ctrlKey) {
+                onMemoSubmit(e);
+              }
+            }}
+          >
+            <Button>メモする</Button>
+            <FormControl>
+              <FormLabel style={style_block} htmlFor="memo_content">
+                メモの内容
+              </FormLabel>
+              <Textarea
+                bgColor={"white"}
+                id="memo_content"
+                name="memo_content"
+                ref={postMemoRef}
+              />
+              <FormHelperText>Ctl + Enterで送信</FormHelperText>
+            </FormControl>
+          </form>
+        </Box>
+        <Box padding={1}>
+          <Heading size="md">メモ一覧</Heading>
+          <Stack spacing={3}>
+            {memos.map(({ memo }, index) => {
+              return (
+                <Card key={index}>
+                  <CardBody>
+                    <Text pt="2" fontSize="sm">
+                      {memo.map((line) => (
+                        <span key={line}>
+                          {line}
+                          <br />
+                        </span>
+                      ))}
+                    </Text>
+                  </CardBody>
+                </Card>
+              );
+            })}
+          </Stack>
+        </Box>
+      </Box>
+    </Box>
   );
 }
 
