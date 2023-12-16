@@ -95,7 +95,7 @@ function App() {
           alignItems: "center",
         }}
       >
-        <h1>Y</h1>
+        <h1>Y memo</h1>
         <button
           onClick={() => {
             if (auth.currentUser) {
