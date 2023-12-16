@@ -72,14 +72,13 @@ function App() {
   useEffect(() => {
     getMemos(setMemos);
   }, [user]);
+  console.log(user);
 
   useEffect(() => {
     getMemos(setMemos);
 
     const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (!user) {
-        setUser(user);
-      }
+      setUser(user);
     });
 
     return () => {
