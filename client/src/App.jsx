@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 function App() {
   const [memos, setMemos] = useState([]);
@@ -26,16 +26,28 @@ function App() {
     const parsed_memo_content = memo_content
       .split("\n")
       .filter((line) => line !== "");
-    setMemos([...memos, parsed_memo_content]);
 
-    fetch("http://127.0.0.1:5000/memos", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ memo: parsed_memo_content }),
-    });
+    (async () => {
+      const res = await fetch("/api/memos", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ memo: parsed_memo_content }),
+      });
+      const data = await res.json();
+      const { id } = data;
+      setMemos([...memos, { id, memo: parsed_memo_content }]);
+    })();
   }
+
+  useEffect(() => {
+    fetch("/api/memos")
+      .then((res) => res.json())
+      .then((data) => {
+        setMemos(data);
+      });
+  }, []);
 
   return (
     <>
@@ -63,21 +75,19 @@ function App() {
       </form>
       <article>
         <h2>メモ一覧</h2>
-        {memos.map((memo, index) => {
+        {memos.map(({ memo }, index) => {
           return (
-            <>
-              <article key={index}>
-                <p>
-                  {memo.map((line) => (
-                    <>
-                      {line}
-                      <br />
-                    </>
-                  ))}
-                </p>
-              </article>
+            <article key={index}>
+              <p>
+                {memo.map((line) => (
+                  <span key={line}>
+                    {line}
+                    <br />
+                  </span>
+                ))}
+              </p>
               <div style={style_spacer} />
-            </>
+            </article>
           );
         })}
       </article>
