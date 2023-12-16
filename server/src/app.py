@@ -8,7 +8,8 @@ app = Flask(__name__)
 def index():
     req: dict = request.get_json()
     memo = req.get("memo")
-    if save_memo(memo):
-        return {"message": "memo saved"}, 204
+    id = save_memo(memo)
+    if id:
+        return {"id": id}, 200
     else:
         return {"message": "memo have no content"}, 400
