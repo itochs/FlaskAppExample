@@ -9,18 +9,6 @@ app = Flask(__name__)
 firebase_app = initialize_app()
 
 
-@app.route("/memos", methods=["POST"])
-@require_auth
-def index(user_id: str):
-    req: dict = request.get_json()
-    memo = req.get("memo")
-    id = save_memo(memo, user_id)
-    if id:
-        return {"id": id}, 200
-    else:
-        return {"message": "memo have no content"}, 400
-
-
 @app.route("/memos", methods=["GET"])
 def get_all_memos():
     all_memo = get_all_memos_from_db()
@@ -45,3 +33,15 @@ def get_user_memos(uid, user_id: str):
     memos = get_all_memos_from_db(uid)
 
     return jsonify(memos)
+
+
+@app.route("/users/<user_id>/memos", methods=["POST"])
+@require_auth
+def save_user_memo(user_id: str):
+    req: dict = request.get_json()
+    memo = req.get("memo")
+    id = save_memo(memo, user_id)
+    if id:
+        return {"id": id}, 200
+    else:
+        return {"message": "memo have no content"}, 400
