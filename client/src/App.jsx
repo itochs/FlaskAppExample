@@ -32,7 +32,7 @@ function App() {
   return (
     <>
       <header>
-        <h1>YOU MEMO HERE, REMEMBER</h1>
+        <h1>Y</h1>
       </header>
       <form
         onSubmit={(e) => onMemoSubmit(e)}
