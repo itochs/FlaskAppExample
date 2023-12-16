@@ -10,10 +10,11 @@ firebase_app = initialize_app()
 
 
 @app.route("/memos", methods=["POST"])
-def index():
+@require_auth
+def index(user_id: str):
     req: dict = request.get_json()
     memo = req.get("memo")
-    id = save_memo(memo)
+    id = save_memo(memo, user_id)
     if id:
         return {"id": id}, 200
     else:
