@@ -1,4 +1,5 @@
 import json
+import uuid
 
 from util import constant
 
@@ -13,7 +14,7 @@ def save_memo(memo: list[str]) -> bool:
             memos = json.load(f)
         except json.decoder.JSONDecodeError:
             memos = []
-        memos.append({"memo": memo})
+        memos.append({"memo": memo, "id": str(uuid.uuid4())})
     with open(constant.MEMO_FILE, "w") as f:
         json.dump(memos, f, indent=2, ensure_ascii=False)
 
